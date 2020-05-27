@@ -1,4 +1,14 @@
 #!/bin/bash
+# me="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+me="${0##*/}"
+# echo ME: $me
+COMMAND="$@"
+if [ $me == 'gnome-terminal' ]; then
+    COMMAND="${@:2}"
+fi
+
+# Prefix
+#  -- gdb -ex run --args"
 
 NAME_OF_SESSION="launches"
 if ! tmux has-session -t $NAME_OF_SESSION; then
@@ -13,9 +23,8 @@ WINDOW_REF="${NAME_OF_SESSION}:${WINDOW_OF_SESSION}"
 # if [ ! $(tmux last-window -t "$NAME_OF_SESSION") ]; then
 tmux select-window -t $WINDOW_REF
 # fi
-
 # Keep executable shell
-# tmux split-window -d -t "${NAME_OF_SESSION}:${WINDOW_OF_SESSION}" "$*; zsh"
 tmux set-window-option -t ${NAME_OF_SESSION} remain-on-exit on
+tmux split-window -d -t "${NAME_OF_SESSION}:${WINDOW_OF_SESSION}" "$COMMAND"
+# tmux split-window -d -t "$WINDOW_REF" "$COMMAND"
 tmux select-layout main-horizontal
-tmux split-window -d -t "$WINDOW_REF" "$*"
